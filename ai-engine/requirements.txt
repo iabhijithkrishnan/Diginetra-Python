@@ -1,0 +1,61 @@
+# Core GUI Framework
+PyQt6>=6.4.0
+
+# Computer Vision and Image Processing
+opencv-python>=4.8.0
+# For GPU-accelerated OpenCV (optional, install separately if needed)
+# opencv-contrib-python>=4.8.0
+
+# Deep Learning Framework (GPU-enabled)
+# CPU-only version (default)
+# torch>=2.0.0
+# GPU-enabled version (install this instead for CUDA support)
+torch>=2.1.0+cu118 --index-url https://download.pytorch.org/whl/cu118
+torchvision>=0.16.0+cu118 --index-url https://download.pytorch.org/whl/cu118
+torchaudio>=2.1.0+cu118 --index-url https://download.pytorch.org/whl/cu118
+
+# Object Detection (YOLOv8 and other models)
+ultralytics>=8.0.20
+
+# Numerical Computing
+numpy>=1.24.0
+scipy>=1.10.0
+
+# System and Performance Monitoring
+psutil>=5.9.0
+nvidia-ml-py>=12.535.108
+
+# Network and HTTP Requests
+requests>=2.31.0
+urllib3>=2.0.0
+
+# Data Processing and Analysis
+pandas>=2.0.0
+pillow>=10.0.0
+
+# Configuration and Utilities
+pyyaml>=6.0
+tqdm>=4.65.0
+
+# Database Support (if needed)
+sqlite3-utils>=3.34.0
+
+# Video and Audio Processing
+av>=10.0.0
+imageio>=2.31.0
+
+# Performance Profiling and Monitoring (optional)
+py3nvml>=0.2.7
+gpustat>=1.1.0
+
+# Development and Testing (optional)
+pytest>=7.4.0
+pytest-qt>=4.2.0
+
+# Memory Management and Optimization
+pympler>=0.9
+memory-profiler>=0.61.0
+
+# Logging and Configuration
+colorlog>=6.7.0
+configparser>=5.3.0

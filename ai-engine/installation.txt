@@ -1,0 +1,162 @@
+# DigiNetra NVR Installation Guide
+
+## Prerequisites
+
+1. **Python 3.9-3.11** (recommended: 3.10)
+2. **NVIDIA GPU with CUDA support** (for GPU acceleration)
+3. **CUDA Toolkit 11.8 or 12.x** (for GPU support)
+
+## Installation Options
+
+### Option 1: GPU-Enabled Installation (Recommended for NVIDIA GPUs)
+
+```bash
+# Install CUDA-enabled PyTorch first
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+# Install other requirements
+pip install -r requirements-gpu.txt
+```
+
+### Option 2: CPU-Only Installation
+
+```bash
+# For systems without NVIDIA GPU or for testing
+pip install -r requirements-cpu.txt
+```
+
+### Option 3: Apple Silicon Mac (MPS Support)
+
+```bash
+# PyTorch with MPS support
+pip install torch torchvision torchaudio
+
+# Install other requirements
+pip install -r requirements-mac.txt
+```
+
+## Requirements Files
+
+### requirements-gpu.txt
+```
+PyQt6>=6.4.0
+opencv-python>=4.8.0
+ultralytics>=8.0.20
+numpy>=1.24.0
+scipy>=1.10.0
+psutil>=5.9.0
+nvidia-ml-py>=12.535.108
+requests>=2.31.0
+pandas>=2.0.0
+pillow>=10.0.0
+pyyaml>=6.0
+tqdm>=4.65.0
+av>=10.0.0
+imageio>=2.31.0
+py3nvml>=0.2.7
+gpustat>=1.1.0
+colorlog>=6.7.0
+```
+
+### requirements-cpu.txt
+```
+PyQt6>=6.4.0
+opencv-python>=4.8.0
+torch>=2.1.0
+torchvision>=0.16.0
+torchaudio>=2.1.0
+ultralytics>=8.0.20
+numpy>=1.24.0
+scipy>=1.10.0
+psutil>=5.9.0
+requests>=2.31.0
+pandas>=2.0.0
+pillow>=10.0.0
+pyyaml>=6.0
+tqdm>=4.65.0
+av>=10.0.0
+imageio>=2.31.0
+colorlog>=6.7.0
+```
+
+### requirements-mac.txt
+```
+PyQt6>=6.4.0
+opencv-python>=4.8.0
+ultralytics>=8.0.20
+numpy>=1.24.0
+scipy>=1.10.0
+psutil>=5.9.0
+requests>=2.31.0
+pandas>=2.0.0
+pillow>=10.0.0
+pyyaml>=6.0
+tqdm>=4.65.0
+av>=10.0.0
+imageio>=2.31.0
+colorlog>=6.7.0
+```
+
+## Verification
+
+After installation, run the diagnostic script to verify GPU support:
+
+```bash
+python gpu_diagnostic.py
+```
+
+## Troubleshooting
+
+### CUDA Issues
+- Ensure NVIDIA drivers are up to date
+- Install CUDA Toolkit from NVIDIA website
+- Verify CUDA installation: `nvcc --version`
+
+### PyTorch GPU Issues
+```bash
+# Uninstall existing PyTorch
+pip uninstall torch torchvision torchaudio
+
+# Reinstall with CUDA support
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+```
+
+### Memory Issues
+- Reduce batch_size in detection parameters
+- Adjust gpu_memory_fraction (default: 0.8)
+- Close other GPU applications
+
+## Performance Optimization
+
+### For High-End GPUs (RTX 3080/4080+)
+- Increase batch_size to 16-32
+- Enable half_precision: True
+- Set target_size to (800, 800) or (1024, 1024)
+
+### For Mid-Range GPUs (RTX 3060/4060)
+- Keep batch_size at 8
+- Enable half_precision: True
+- Keep target_size at (640, 640)
+
+### For Entry-Level GPUs (GTX 1660/RTX 3050)
+- Reduce batch_size to 4
+- Consider half_precision: False if issues occur
+- Reduce target_size to (512, 512)
+
+## Optional Packages
+
+For enhanced functionality:
+
+```bash
+# For advanced video processing
+pip install ffmpeg-python
+
+# For better logging and monitoring
+pip install wandb tensorboard
+
+# For database optimization
+pip install sqlalchemy alembic
+
+# For web interface (if planned)
+pip install fastapi uvicorn websockets
+```

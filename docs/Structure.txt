@@ -1,0 +1,36 @@
+Diginetra Python/
+│
+├── ai-engine/                  # 🔧 Your existing Python YOLO detection system
+│   ├── main.py
+│   ├── config.py
+│   ├── requirements.txt
+│   ├── yolov8n.pt
+│   ├── diginetra.db
+│   ├── controllers/
+│   ├── models/
+│   ├── views/                 # PyQt GUI (optional now)
+│   ├── events/                # Detected image snapshots
+│   ├── icons/
+│   ├── oldcode/               # Keep for backup or dev reference
+│   └── README.md
+│
+├── react-frontend/            # 🌐 Your React app (from App.tsx, etc.)
+│   ├── App.tsx
+│   ├── main.tsx
+│   ├── index.css
+│   ├── pages/
+│   ├── components/
+│   └── public/                # (optional for images, favicon, etc.)
+│
+├── api-backend/               # 🚀 Node.js server (to be built)
+│   ├── server.js
+│   ├── routes/
+│   ├── controllers/
+│   ├── services/              # Python bridge, DB, etc.
+│   ├── .env                   # (for config like DB path)
+│   └── package.json
+│
+├── docs/                      # 📄 PDFs and documentation
+│   ├── Custom NVR Software for Diginetra Surveillance System.pdf
+│
+└── README.md                  # 💡 Project overview & setup instructions
