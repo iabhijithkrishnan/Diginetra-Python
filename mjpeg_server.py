@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import os
 import time
 import threading
@@ -64,7 +65,7 @@ class MJPEGStreamHandler(BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'application/octet-stream')
             self.end_headers()
             
-            print(f"📡 Receiving FFmpeg stream from {self.client_address}")
+            print(f"[RECEIVE] FFmpeg stream from {self.client_address}")
             
             buffer = b''
             while True:
@@ -104,16 +105,16 @@ class MJPEGStreamHandler(BaseHTTPRequestHandler):
                             # Remove processed data from buffer
                             buffer = buffer[end:]
                             
-                            print(f"📦 Buffered frame: {len(frame)} bytes")
+                            print(f"[BUFFER] Frame: {len(frame)} bytes")
                         else:
                             break
                 
                 except Exception as e:
-                    print(f"Error processing FFmpeg data: {e}")
+                    print(f"[ERROR] Processing FFmpeg data: {e}")
                     break
         
         except Exception as e:
-            print(f"Error receiving FFmpeg stream: {e}")
+            print(f"[ERROR] Receiving FFmpeg stream: {e}")
 
     def serve_ffmpeg_stream(self):
         """Serve continuous MJPEG stream from FFmpeg buffer"""
@@ -130,7 +131,7 @@ class MJPEGStreamHandler(BaseHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Headers', 'Content-Type')
             self.end_headers()
 
-            print(f"🎥 Starting MJPEG stream for {self.client_address}")
+            print(f"[STREAM] Starting MJPEG stream for {self.client_address}")
             last_frame_time = time.time()
             
             while True:
@@ -153,11 +154,11 @@ class MJPEGStreamHandler(BaseHTTPRequestHandler):
                         self.wfile.write(frame)
                         
                         last_frame_time = time.time()
-                        # print(f"📺 Streamed frame: {len(frame)} bytes")
+                        # print(f"[SERVED] Frame: {len(frame)} bytes")
                     
                     # Check if we haven't received frames for too long
                     if time.time() - last_frame_time > 5:
-                        print("⚠️  No frames received for 5 seconds, checking detection fallback...")
+                        print("[WARNING] No frames received for 5 seconds, checking detection fallback...")
                         # Try to serve detection images as fallback
                         detection_frame = self.get_detection_frame()
                         if detection_frame:
@@ -171,11 +172,11 @@ class MJPEGStreamHandler(BaseHTTPRequestHandler):
                     time.sleep(0.033)
                 
                 except Exception as e:
-                    print(f"Error streaming frame: {e}")
+                    print(f"[ERROR] Streaming frame: {e}")
                     break
 
         except Exception as e:
-            print(f"MJPEG stream error: {e}")
+            print(f"[ERROR] MJPEG stream: {e}")
 
     def get_detection_frame(self):
         """Get latest detection frame as fallback"""
@@ -193,7 +194,7 @@ class MJPEGStreamHandler(BaseHTTPRequestHandler):
                     with open(latest_file, 'rb') as f:
                         return f.read()
         except Exception as e:
-            print(f"Error getting detection frame: {e}")
+            print(f"[ERROR] Getting detection frame: {e}")
         
         return None
 
@@ -238,11 +239,11 @@ class MJPEGStreamHandler(BaseHTTPRequestHandler):
                     time.sleep(0.5)  # 2 FPS for detection images
                 
                 except Exception as e:
-                    print(f"Error in detection stream: {e}")
+                    print(f"[ERROR] Detection stream: {e}")
                     time.sleep(1)
 
         except Exception as e:
-            print(f"Detection stream error: {e}")
+            print(f"[ERROR] Detection stream: {e}")
 
     def serve_latest_frame(self):
         """Serve single latest frame"""
@@ -275,7 +276,7 @@ class MJPEGStreamHandler(BaseHTTPRequestHandler):
                 self.wfile.write(b'No frames available')
                 
         except Exception as e:
-            print(f"Error serving latest frame: {e}")
+            print(f"[ERROR] Serving latest frame: {e}")
             self.send_response(500)
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
@@ -302,12 +303,12 @@ class MJPEGStreamHandler(BaseHTTPRequestHandler):
         </head>
         <body>
             <div class="container">
-                <h1>🎥 Live Camera System</h1>
+                <h1>Live Camera System</h1>
                 <div class="feeds">
                     <div class="feed-container">
                         <div class="title">FFmpeg Live Stream</div>
                         <img src="/live_feed" alt="Live Stream">
-                        <div class="status">Real-time RTSP → MJPEG</div>
+                        <div class="status">Real-time RTSP to MJPEG</div>
                     </div>
                     <div class="feed-container">
                         <div class="title">Detection Feed</div>
@@ -321,7 +322,7 @@ class MJPEGStreamHandler(BaseHTTPRequestHandler):
                     <div class="status">Single frame (refreshed every 3s)</div>
                 </div>
                 <div style="margin-top:20px; padding:15px; background:#333; border-radius:5px;">
-                    <h3>🔧 System Status</h3>
+                    <h3>System Status</h3>
                     <div id="status">Checking...</div>
                 </div>
             </div>
@@ -336,7 +337,7 @@ class MJPEGStreamHandler(BaseHTTPRequestHandler):
                     const hasFrames = """ + str(latest_frame is not None).lower() + """;
                     const queueSize = """ + str(frame_buffer.qsize()) + """;
                     document.getElementById('status').innerHTML = 
-                        `FFmpeg Connected: ${hasFrames ? '✅' : '❌'}<br>` +
+                        `FFmpeg Connected: ${hasFrames ? 'YES' : 'NO'}<br>` +
                         `Frame Buffer: ${queueSize} frames<br>` +
                         `Last Update: ${new Date().toLocaleTimeString()}`;
                 }
@@ -360,28 +361,28 @@ class MJPEGStreamHandler(BaseHTTPRequestHandler):
         # Only log important messages
         message = format % args
         if any(keyword in message.lower() for keyword in ['error', 'exception', 'failed']):
-            print(f"🚨 {message}")
+            print(f"[LOG] {message}")
 
 def main():
-    print("🚀 Starting Enhanced MJPEG Server with FFmpeg Integration...")
-    print("📡 FFmpeg endpoint: http://localhost:8090/feed1")
-    print("🎥 Live stream: http://localhost:8090/live_feed")
-    print("🔍 Detection stream: http://localhost:8090/detection_feed")
-    print("📸 Latest frame: http://localhost:8090/latest_image")
-    print("🌐 Test page: http://localhost:8090/")
+    print("Starting Enhanced MJPEG Server with FFmpeg Integration...")
+    print("FFmpeg endpoint: http://localhost:8090/feed1")
+    print("Live stream: http://localhost:8090/live_feed")
+    print("Detection stream: http://localhost:8090/detection_feed")
+    print("Latest frame: http://localhost:8090/latest_image")
+    print("Test page: http://localhost:8090/")
     print("=" * 60)
-    print("🔧 Start FFmpeg with: run_stream.bat")
-    print("🤖 Start AI detection for fallback images")
+    print("Start FFmpeg with: run_stream.bat")
+    print("Start AI detection for fallback images")
     print("=" * 60)
     
     try:
         server = ThreadedHTTPServer(('localhost', 8090), MJPEGStreamHandler)
-        print("✅ Server started successfully on port 8090")
+        print("Server started successfully on port 8090")
         server.serve_forever()
     except KeyboardInterrupt:
-        print("\n🛑 Server stopped by user")
+        print("\nServer stopped by user")
     except Exception as e:
-        print(f"❌ Server error: {e}")
+        print(f"Server error: {e}")
 
 if __name__ == "__main__":
     main()

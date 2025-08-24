@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Camera, Clock, Users, TrendingUp, Zap, Anchor, 
-  Eye, Calendar, RefreshCw
+  Eye, Calendar, RefreshCw, Cpu, HardDrive, Monitor
 } from 'lucide-react';
 
 interface DetectionData {
@@ -45,6 +45,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Hardware monitoring state
+  const [systemStats, setSystemStats] = useState({
+    cpu: { usage: 45, temperature: 52 },
+    ram: { usage: 68, total: 32, used: 21.8 },
+    gpu: { usage: 23, memory: 85, temperature: 45 },
+    storage: { usage: 78, total: 1000, used: 780 }
+  });
 
   // Fetch detection statistics
   const fetchStats = async () => {
@@ -102,6 +110,34 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     return () => clearInterval(interval);
   }, []);
 
+  // Simulate hardware stats updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSystemStats(prev => ({
+        cpu: {
+          usage: Math.max(10, Math.min(95, prev.cpu.usage + (Math.random() - 0.5) * 10)),
+          temperature: Math.max(35, Math.min(85, prev.cpu.temperature + (Math.random() - 0.5) * 3))
+        },
+        ram: {
+          ...prev.ram,
+          usage: Math.max(20, Math.min(95, prev.ram.usage + (Math.random() - 0.5) * 8)),
+          used: Math.max(6.4, Math.min(30.4, prev.ram.used + (Math.random() - 0.5) * 2.5))
+        },
+        gpu: {
+          usage: Math.max(0, Math.min(100, prev.gpu.usage + (Math.random() - 0.5) * 15)),
+          memory: Math.max(10, Math.min(95, prev.gpu.memory + (Math.random() - 0.5) * 5)),
+          temperature: Math.max(30, Math.min(80, prev.gpu.temperature + (Math.random() - 0.5) * 4))
+        },
+        storage: {
+          ...prev.storage,
+          usage: Math.max(60, Math.min(90, prev.storage.usage + (Math.random() - 0.5) * 2))
+        }
+      }));
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const getRecentDetectionsByType = (type: 'Human' | 'Vehicle' | 'Animal') => {
     return detections
       .filter(detection => 
@@ -109,6 +145,55 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       )
       .slice(0, 3);
   };
+
+  const getProgressBarColor = (usage: number) => {
+    if (usage < 50) return 'bg-green-500';
+    if (usage < 75) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+
+  const getStatusColor = (usage: number) => {
+    if (usage < 50) return 'text-green-400';
+    if (usage < 75) return 'text-yellow-400';
+    return 'text-red-400';
+  };
+
+  const ProgressBar = ({ value, label, icon: Icon, details }: {
+    value: number;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    details: Array<{ label: string; value: string }>;
+  }) => (
+    <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <Icon className="w-4 h-4 text-blue-400" />
+          <span className="font-medium text-gray-200 text-sm">{label}</span>
+        </div>
+        <span className={`text-sm font-bold ${getStatusColor(value)}`}>
+          {Math.round(value)}%
+        </span>
+      </div>
+      
+      <div className="w-full bg-gray-700 rounded-full h-2 mb-3">
+        <div 
+          className={`h-2 rounded-full transition-all duration-1000 ${getProgressBarColor(value)}`}
+          style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
+        ></div>
+      </div>
+      
+      {details && (
+        <div className="text-xs text-gray-400 space-y-1">
+          {details.map((detail, index) => (
+            <div key={index} className="flex justify-between">
+              <span>{detail.label}</span>
+              <span>{detail.value}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 
   const StatCard = ({ 
     title, 
@@ -324,38 +409,66 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </div>
         </div>
 
+        {/* Hardware Monitor */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-gray-300 mb-4">Recent Activity</h3>
-          <div className="space-y-3">
-            {detections.slice(0, 4).map((detection) => (
-              <div key={detection.filename} className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center">
-                  <span className="text-sm text-gray-400 font-medium">{detection.detections.length}</span>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm text-gray-300">
-                    {detection.detections.length} object{detection.detections.length !== 1 ? 's' : ''} detected
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(detection.timestamp * 1000).toLocaleTimeString()} - Camera {detection.camera_id}
-                  </p>
-                  <div className="flex gap-1 mt-1">
-                    {Array.from(new Set(detection.detections.map(d => d.type))).map((type, idx) => (
-                      <span key={idx} className="text-xs px-2 py-1 bg-gray-800 rounded text-gray-400">
-                        {type}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+          <div className="flex items-center gap-2 mb-4">
+            <Monitor className="w-5 h-5 text-blue-400" />
+            <h3 className="text-lg font-semibold text-gray-300">Hardware Monitor</h3>
+            <div className="ml-auto">
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-xs text-gray-400">Live</span>
               </div>
-            ))}
-            
-            {detections.length === 0 && (
-              <div className="text-center text-gray-500 py-4">
-                <p>No recent detections</p>
-                <p className="text-xs mt-1">Waiting for AI detection...</p>
-              </div>
-            )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <ProgressBar
+              value={systemStats.cpu.usage}
+              label="CPU"
+              icon={Cpu}
+              details={[
+                { label: 'Temp', value: `${Math.round(systemStats.cpu.temperature)}°C` },
+                { label: 'Cores', value: '8' }
+              ]}
+            />
+
+            <ProgressBar
+              value={systemStats.ram.usage}
+              label="RAM"
+              icon={Zap}
+              details={[
+                { label: 'Used', value: `${systemStats.ram.used.toFixed(1)} GB` },
+                { label: 'Total', value: `${systemStats.ram.total} GB` }
+              ]}
+            />
+
+            <ProgressBar
+              value={systemStats.gpu.usage}
+              label="GPU"
+              icon={Monitor}
+              details={[
+                { label: 'VRAM', value: `${Math.round(systemStats.gpu.memory)}%` },
+                { label: 'Temp', value: `${Math.round(systemStats.gpu.temperature)}°C` }
+              ]}
+            />
+
+            <ProgressBar
+              value={systemStats.storage.usage}
+              label="Storage"
+              icon={HardDrive}
+              details={[
+                { label: 'Used', value: `${Math.round(systemStats.storage.used)} GB` },
+                { label: 'Free', value: `${systemStats.storage.total - systemStats.storage.used} GB` }
+              ]}
+            />
+          </div>
+
+          <div className="mt-4 pt-4 border-t border-gray-800">
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span>System Status: Normal</span>
+              <span>Updated: {new Date().toLocaleTimeString()}</span>
+            </div>
           </div>
         </div>
       </div>

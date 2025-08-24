@@ -22,15 +22,10 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
           <div className="h-6 w-6 rounded-full bg-gray-700 flex items-center justify-center mr-2">
             <div className="h-4 w-4 rounded-full bg-red-500"></div>
           </div>
-          <span className="text-gray-200 font-medium">iVMS810</span>
+          <span className="text-gray-200 font-medium">DIGI-NETRA</span>
         </div>
         <div className="flex items-center">
-          <span className="text-gray-400 text-sm mr-4">{username}</span>
-          <User className="h-4 w-4 text-gray-400 mr-4" />
-          <HelpCircle className="h-4 w-4 text-gray-400 mr-4" />
-          <MinusIcon className="h-4 w-4 text-gray-400 mr-2" />
-          <SquareIcon className="h-4 w-4 text-gray-400 mr-2" />
-          <XIcon className="h-4 w-4 text-gray-400" />
+          <span className="text-gray-300 text-sm font-medium">Real-Time Wildlife Monitoring System</span>
         </div>
       </div>
       

@@ -13,9 +13,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, currentTab,
   const tabs = [
     { id: 'dashboard', label: 'Dashboard' },
     { id: 'live', label: 'Live View' },
-    { id: 'gallery', label: 'Gallery' },
+    { id: 'gallery', label: 'Alert' },
     { id: 'playback', label: 'Playback' },
-    { id: 'alerts', label: 'Alerts' }
   ];
 
   return (
